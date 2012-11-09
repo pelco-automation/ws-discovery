@@ -1,17 +1,13 @@
-module UPnP
-  class SSDP
-    module NetworkConstants
+module WSDiscovery
+  module NetworkConstants
 
-      BROADCAST_IP = '255.255.255.255'
+    # Default multicast IP address
+    MULTICAST_IP = '239.255.255.250'
 
-      # Default multicast IP address
-      MULTICAST_IP = '239.255.255.250'
+    # Default multicast port
+    MULTICAST_PORT = 3702
 
-      # Default multicast port
-      MULTICAST_PORT = 1900
-
-      # Default TTL
-      TTL = 4
-    end
+    # Default TTL
+    TTL = 1
   end
 end

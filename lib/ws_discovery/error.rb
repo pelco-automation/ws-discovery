@@ -1,6 +1,4 @@
-module UPnP
-  class SSDP
-    class Error < StandardError
-    end
+module WSDiscovery
+  class Error < StandardError
   end
 end

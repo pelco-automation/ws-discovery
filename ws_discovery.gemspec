@@ -16,10 +16,12 @@ Gem::Specification.new do |s|
     %w(Gemfile ws_discovery.gemspec Rakefile)
   s.require_paths = ["lib"]
 
+  s.add_dependency("builder")
+  s.add_dependency("nokogiri")
+  s.add_dependency("nori")
+
   s.add_development_dependency("bundler", [">= 1.0.21"])
-  s.add_development_dependency("code_statistics", ["~> 0.2.13"])
   s.add_development_dependency("rake", [">= 0"])
-  s.add_development_dependency("roodi", [">= 2.1.0"])
   s.add_development_dependency("rspec", ["~> 2.6"])
   s.add_development_dependency("simplecov", [">= 0"])
   s.add_development_dependency("simplecov-rcov", [">= 0"])

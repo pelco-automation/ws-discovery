@@ -1,46 +1,38 @@
-require_relative 'ws-discovery/core_ext/socket_patch'
+require_relative 'ws_discovery/core_ext/socket_patch'
 require 'eventmachine'
 require 'log_switch'
 
-require_relative 'ws-discovery/error'
-require_relative 'ws-discovery/network_constants'
-require_relative 'ws-discovery/searcher'
+require_relative 'ws_discovery/error'
+require_relative 'ws_discovery/network_constants'
+require_relative 'ws_discovery/searcher'
 
-class SSDP
+module WSDiscovery
   extend LogSwitch
   include LogSwitch::Mixin
   include NetworkConstants
 
   self.logger.datetime_format = "%Y-%m-%d %H:%M:%S "
 
-  # Opens a UDP socket on 0.0.0.0, on an ephemeral port, has UPnP::SSDP::Searcher
+  # Opens a UDP socket on 0.0.0.0, on an ephemeral port, has WSDiscovery::Searcher
   # build and send the search request, then receives the responses.  The search
   # will stop after +response_wait_time+.
   #
-  # @param [String] search_target
   # @param [Hash] options
-  # @option options [Fixnum] response_wait_time
-  # @option options [Fixnum] ttl
-  # @option options [Fixnum] m_search_count
-  # @return [Array<Hash>,UPnP::SSDP::Searcher] Returns a Hash that represents
-  #   the headers from the M-SEARCH response.  Each one of these can be passed
-  #   in to UPnP::ControlPoint::Device.new to download the device's
-  #   description file, parse it, and interact with the device's devices
-  #   and/or services.  If the reactor is already running this will return a
-  #   a UPnP::SSDP::Searcher which will make its accessors available so you
-  #   can get responses in real time.
-  def self.search(search_target=:all, options={})
+  # @option options [Fixnum] env_namespaces
+  # @option options [Fixnum] type_attributes
+  # @option options [Fixnum] types
+  # @option options [Fixnum] scope_attributes
+  # @option options [Fixnum] scopes
+  # @return [Array<WSDiscovery::Response>,WSDiscovery::Searcher] Returns an
+  # Array of probe responses. If the reactor is already running this will return
+  # a WSDiscovery::Searcher which will make its accessors available so you can
+  # get responses in real time.
+  def self.search(options={})
     response_wait_time = options[:response_wait_time] || 5
-    ttl = options[:ttl] || TTL
-
-    searcher_options = options
-
     responses = []
-    search_target = search_target.to_upnp_s unless search_target.is_a? String
 
     multicast_searcher = proc do
-      EM.open_datagram_socket('0.0.0.0', 0, UPnP::SSDP::Searcher, search_target,
-        searcher_options)
+      EM.open_datagram_socket('0.0.0.0', 0, WSDiscovery::Searcher, options)
     end
 
     if EM.reactor_running?

@@ -1,83 +1,75 @@
 require_relative 'multicast_connection'
+require_relative 'response'
+require 'builder'
+require 'uuid'
 
-module UPnP
+class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
 
-  # A subclass of an EventMachine::Connection, this handles doing M-SEARCHes.
+  # @return [EventMachine::Channel] Provides subscribers with responses from
+  #   their search request.
+  attr_reader :discovery_responses
+
+  # @param [Hash] options
+  # @option options [Fixnum] ttl
+  def initialize(options={})
+    options[:ttl] ||= TTL
+
+    @search = probe(options)
+
+    super options[:ttl]
+  end
+
+  # This is the callback called by EventMachine when it receives data on the
+  # socket that's been opened for this connection.  In this case, the method
+  # parses the probe matches into Hashes and adds them to the
+  # appropriate EventMachine::Channel (provided as accessor methods).  This
+  # effectively means that in each Channel, you get a Hash that represents
+  # the headers for each response/notification that comes in on the socket.
   #
-  # Search types:
-  #   ssdp:all
-  #   upnp:rootdevice
-  #   uuid:[device-uuid]
-  #   urn:schemas-upnp-org:device:[deviceType-version]
-  #   urn:schemas-upnp-org:service:[serviceType-version]
-  #   urn:[custom-schema]:device:[deviceType-version]
-  #   urn:[custom-schema]:service:[serviceType-version]
-  class SSDP::Searcher < SSDP::MulticastConnection
-    DEFAULT_RESPONSE_WAIT_TIME = 5
-    DEFAULT_M_SEARCH_COUNT = 2
+  # @param [String] response The data received on this connection's socket.
+  def receive_data(response)
+    ip, port = peer_info
+    WSDiscovery.log "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
+    parsed_response = parse(response)
+    @discovery_responses << parsed_response
+  end
 
-    # @return [EventMachine::Channel] Provides subscribers with responses from
-    #   their search request.
-    attr_reader :discovery_responses
+  # Converts the headers to a set of key-value pairs.
+  #
+  # @param [String] data The data to convert.
+  # @return [WSDiscovery::Response] The converted data.
+  def parse(data)
+    WSDiscovery::Response.new(data)
+  end
 
-    # @param [String] search_target
-    # @param [Hash] options
-    # @option options [Fixnum] response_wait_time
-    # @option options [Fixnum] ttl
-    # @option options [Fixnum] m_search_count The number of times to send the
-    #   M-SEARCH.  UPnP 1.0 suggests to send the request more than once.
-    def initialize(search_target, options={})
-      options[:ttl] ||= TTL
-      options[:response_wait_time] ||= DEFAULT_RESPONSE_WAIT_TIME
-      @m_search_count = options[:m_search_count] ||= DEFAULT_M_SEARCH_COUNT
-
-      @search = m_search(search_target, options[:response_wait_time])
-
-      super options[:ttl]
+  # Sends the probe that was built during init.  Logs what was sent if the
+  # send was successful.
+  def post_init
+    if send_datagram(@search, MULTICAST_IP, MULTICAST_PORT) > 0
+      WSDiscovery.log("Sent datagram search:\n#{@search}")
     end
+  end
 
-    # This is the callback called by EventMachine when it receives data on the
-    # socket that's been opened for this connection.  In this case, the method
-    # parses the SSDP responses/notifications into Hashes and adds them to the
-    # appropriate EventMachine::Channel (provided as accessor methods).  This
-    # effectively means that in each Channel, you get a Hash that represents
-    # the headers for each response/notification that comes in on the socket.
-    #
-    # @param [String] response The data received on this connection's socket.
-    def receive_data(response)
-      ip, port = peer_info
-      SSDP.log "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
-      parsed_response = parse(response)
+  # SEARCH ALL THE TARGET SERVICES
+  def probe(options={})
+    namespaces = {
+      'xmlns:a' => 'http://schemas.xmlsoap.org/ws/2004/08/addressing',
+      'xmlns:d' => 'http://schemas.xmlsoap.org/ws/2005/04/discovery',
+      'xmlns:s' => 'http://www.w3.org/2003/05/soap-envelope'
+    }
+    namespaces.merge options[:env_namespaces] if options[:env_namespaces]
 
-      return if parsed_response.has_key? :nts
-      return if parsed_response[:man] && parsed_response[:man] =~ /ssdp:discover/
-
-      @discovery_responses << parsed_response
-    end
-
-    # Sends the M-SEARCH that was built during init.  Logs what was sent if the
-    # send was successful.
-    def post_init
-      @m_search_count.times do
-        if send_datagram(@search, MULTICAST_IP, MULTICAST_PORT) > 0
-          SSDP.log("Sent datagram search:\n#{@search}")
-        end
+    Builder::XmlMarkup.new.s(:Envelope, namespaces) do |xml|
+      xml.s(:Header) do |xml|
+        xml.a(:Action, 'http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe')
+        xml.a(:MessageID, "uuid:#{UUID.generate}")
+        xml.a(:To, 'urn:schemas-xmlsoap-org:ws:2005:04:discovery')
       end
-    end
 
-    # Builds the M-SEARCH request string.
-    #
-    # @param [String] search_target
-    # @param [Fixnum] response_wait_time
-    def m_search(search_target, response_wait_time)
-      <<-MSEARCH
-M-SEARCH * HTTP/1.1\r
-HOST: #{MULTICAST_IP}:#{MULTICAST_PORT}\r
-MAN: "ssdp:discover"\r
-MX: #{response_wait_time}\r
-ST: #{search_target}\r
-\r
-      MSEARCH
+      xml.s(:Body) do |xml|
+        xml.d(:Types, options[:type_attributes], options[:types])
+        xml.d(:Scopes, options[:scope_attributes], options[:scopes])
+      end
     end
   end
 end
