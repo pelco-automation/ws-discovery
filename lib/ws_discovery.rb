@@ -1,17 +1,12 @@
 require_relative 'ws_discovery/core_ext/socket_patch'
 require 'eventmachine'
-require 'log_switch'
 
 require_relative 'ws_discovery/error'
 require_relative 'ws_discovery/network_constants'
 require_relative 'ws_discovery/searcher'
 
 module WSDiscovery
-  extend LogSwitch
-  include LogSwitch::Mixin
   include NetworkConstants
-
-  self.logger.datetime_format = "%Y-%m-%d %H:%M:%S "
 
   # Opens a UDP socket on 0.0.0.0, on an ephemeral port, has WSDiscovery::Searcher
   # build and send the search request, then receives the responses.  The search

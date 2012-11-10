@@ -1,9 +1,18 @@
-require_relative 'lib/ws_discovery/version'
 require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+require 'cucumber/rake/task'
+require 'yard'
 
-# Load all extra rake task definitions
-Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |ext| load ext }
+YARD::Rake::YardocTask.new
+Cucumber::Rake::Task.new(:features)
+RSpec::Core::RakeTask.new
 
-Rake.application.instance_variable_get(:@tasks).delete("release")
+RSpec::Core::RakeTask.new(:rcov) do |spec|
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov = true
+end
 
-task default: :build
+task default: :install
+
+# Alias for rubygems-test
+task test: :spec

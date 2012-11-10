@@ -1,9 +1,12 @@
 require_relative 'multicast_connection'
 require_relative 'response'
 require 'builder'
+require 'log_switch'
 require 'uuid'
 
 class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
+  extend LogSwitch
+  self.logger.datetime_format = "%Y-%m-%d %H:%M:%S "
 
   # @return [EventMachine::Channel] Provides subscribers with responses from
   #   their search request.
@@ -21,15 +24,15 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
 
   # This is the callback called by EventMachine when it receives data on the
   # socket that's been opened for this connection.  In this case, the method
-  # parses the probe matches into Hashes and adds them to the
+  # parses the probe matches into WSDiscovery::Responses and adds them to the
   # appropriate EventMachine::Channel (provided as accessor methods).  This
-  # effectively means that in each Channel, you get a Hash that represents
-  # the headers for each response/notification that comes in on the socket.
+  # effectively means that in each Channel, you get a WSDiscovery::Response
+  # for each response that comes in on the socket.
   #
   # @param [String] response The data received on this connection's socket.
   def receive_data(response)
     ip, port = peer_info
-    WSDiscovery.log "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
+    WSDiscovery::Searcher.log "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
     parsed_response = parse(response)
     @discovery_responses << parsed_response
   end
@@ -46,7 +49,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   # send was successful.
   def post_init
     if send_datagram(@search, MULTICAST_IP, MULTICAST_PORT) > 0
-      WSDiscovery.log("Sent datagram search:\n#{@search}")
+      WSDiscovery::Searcher.log("Sent datagram search:\n#{@search}")
     end
   end
 
