@@ -12,12 +12,12 @@ module WSDiscovery
   # build and send the search request, then receives the responses.  The search
   # will stop after +response_wait_time+.
   #
-  # @param [Hash] options
-  # @option options [Fixnum] env_namespaces
-  # @option options [Fixnum] type_attributes
-  # @option options [Fixnum] types
-  # @option options [Fixnum] scope_attributes
-  # @option options [Fixnum] scopes
+  # @param [Hash] options The options for the probe.
+  # @option options [Hash<String>] :env_namespaces Additional envelope namespaces.
+  # @option options [Hash<String>] :type_attributes Type attributes.
+  # @option options [String] :types Types.
+  # @option options [Hash<String>] :scope_attributes Scope attributes.
+  # @option options [String] :scopes Scopes.
   # @return [Array<WSDiscovery::Response>,WSDiscovery::Searcher] Returns an
   # Array of probe responses. If the reactor is already running this will return
   # a WSDiscovery::Searcher which will make its accessors available so you can

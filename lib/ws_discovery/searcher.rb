@@ -12,8 +12,13 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   #   their search request.
   attr_reader :discovery_responses
 
-  # @param [Hash] options
-  # @option options [Fixnum] ttl
+  # @param [Hash] options The options for the probe.
+  # @option options [Hash<String>] :env_namespaces Additional envelope namespaces.
+  # @option options [Hash<String>] :type_attributes Type attributes.
+  # @option options [String] :types Types.
+  # @option options [Hash<String>] :scope_attributes Scope attributes.
+  # @option options [String] :scopes Scopes.
+  # @option options [Fixnum] ttl TTL for the probe.
   def initialize(options={})
     options[:ttl] ||= TTL
 
@@ -53,7 +58,15 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
     end
   end
 
-  # SEARCH ALL THE TARGET SERVICES
+  # Probe for target services supporting WS-Discovery.
+  #
+  # @param [Hash] options The options for the probe.
+  # @option options [Hash<String>] :env_namespaces Additional envelope namespaces.
+  # @option options [Hash<String>] :type_attributes Type attributes.
+  # @option options [String] :types Types.
+  # @option options [Hash<String>] :scope_attributes Scope attributes.
+  # @option options [String] :scopes Scopes.
+  # @return [String] Probe SOAP message.
   def probe(options={})
     namespaces = {
       'xmlns:a' => 'http://schemas.xmlsoap.org/ws/2004/08/addressing',

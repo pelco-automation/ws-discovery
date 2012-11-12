@@ -28,12 +28,6 @@ describe WSDiscovery::Searcher do
     WSDiscovery::Searcher.new(1)
   end
 
-  it "lets you read its responses" do
-    responses = double 'responses'
-    subject.instance_variable_set(:@discovery_responses, responses)
-    subject.discovery_responses.should == responses
-  end
-
   describe "#initialize" do
     it "does a #probe" do
       WSDiscovery::Searcher.any_instance.should_receive(:probe)
@@ -85,10 +79,6 @@ describe WSDiscovery::Searcher do
   describe "#probe" do
     it "builds the MSEARCH string using the given parameters" do
       subject.probe.should == default_probe
-    end
-
-    it "lets you search for undefined search target types" do
-
     end
   end
 end

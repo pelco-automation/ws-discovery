@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'nori'
+require_relative 'error'
 
 Nori.configure do |config|
   config.strip_namespaces = true
@@ -11,6 +12,7 @@ module WSDiscovery
   # Represents the probe response.
   class Response
 
+    # @param [String] response Text of the response to a WSDiscovery probe.
     def initialize(response)
       self.response = response
     end
@@ -18,11 +20,16 @@ module WSDiscovery
     attr_accessor :response
 
     # Shortcut accessor for the SOAP response body Hash.
+    #
+    # @param [Symbol] key The key to access in the body Hash.
+    # @return [Hash,String] The accessed value.
     def [](key)
       body[key]
     end
 
     # Returns the SOAP response header as a Hash.
+    #
+    # @return [Hash] SOAP response header.
     def header
       unless hash.has_key? :envelope
         raise WSDiscovery::Error, "Unable to parse response body '#{to_xml}'"
@@ -32,6 +39,8 @@ module WSDiscovery
     end
 
     # Returns the SOAP response body as a Hash.
+    #
+    # @return [Hash] SOAP response body.
     def body
       unless hash.has_key? :envelope
         raise WSDiscovery::Error, "Unable to parse response body '#{to_xml}'"
@@ -42,41 +51,41 @@ module WSDiscovery
 
     alias to_hash body
 
-    # Traverses the SOAP response body Hash for a given +path+ of Hash keys and returns
-    # the value as an Array. Defaults to return an empty Array in case the path does not
-    # exist or returns nil.
-    def to_array(*path)
-      result = path.inject body do |memo, key|
-        return [] unless memo[key]
-        memo[key]
-      end
-
-      result.kind_of?(Array) ? result.compact : [result].compact
-    end
-
     # Returns the complete SOAP response XML without normalization.
+    #
+    # @return [Hash] Complete SOAP response Hash.
     def hash
       @hash ||= Nori.parse(to_xml)
     end
 
     # Returns the SOAP response XML.
+    #
+    # @return [String] Raw SOAP response XML.
     def to_xml
       response
     end
 
-    # Returns a <tt>Nokogiri::XML::Document</tt> for the SOAP response XML.
+    # Returns a Nokogiri::XML::Document for the SOAP response XML.
+    #
+    # @return [Nokogiri::XML::Document] Document for the SOAP response.
     def doc
       @doc ||= Nokogiri::XML(to_xml)
     end
 
-    # Returns an Array of <tt>Nokogiri::XML::Node</tt> objects retrieved with the given +path+.
+    # Returns an Array of Nokogiri::XML::Node objects retrieved with the given +path+.
     # Automatically adds all of the document's namespaces unless a +namespaces+ hash is provided.
+    #
+    # @param [String] path XPath to search.
+    # @param [Hash<String>] namespaces Namespaces to append.
     def xpath(path, namespaces = nil)
       doc.xpath(path, namespaces || xml_namespaces)
     end
 
     private
 
+    # XML Namespaces from the Document.
+    #
+    # @return [Hash] Namespaces from the Document.
     def xml_namespaces
       @xml_namespaces ||= doc.collect_namespaces
     end
