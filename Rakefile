@@ -3,7 +3,6 @@ require 'rspec/core/rake_task'
 require 'yard'
 
 YARD::Rake::YardocTask.new
-Cucumber::Rake::Task.new(:features)
 RSpec::Core::RakeTask.new
 
 RSpec::Core::RakeTask.new(:rcov) do |spec|
