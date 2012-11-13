@@ -1,0 +1,77 @@
+= ws_discovery
+
+* {Homepage}[https://github.com/pelco-automation/ws-discovery]
+* {WS-Discovery 1.0 Specification}[http://specs.xmlsoap.org/ws/2005/04/discovery/ws-discovery.pdf]
+* {SOAP-over-UDP Specification}[http://specs.xmlsoap.org/ws/2004/09/soap-over-udp/soap-over-udp.pdf]
+
+== Description
+
+This gem aims to provide the ability to search for WS-Discovery compatible target
+services.
+
+This uses EventMachine[http://github.com/eventmachine/eventmachine], so if
+you're not already, getting familiar with its concepts will be helpful here.
+
+== Features
+
+* Search for WS-Discovery compatible target services.
+
+== Examples
+
+=== WS-Discovery Searches
+
+A WS-Discovery search simply sends the probe out to the multicast group and
+listens for responses for a given (or default of 5 seconds) amount of time.  The
+return from this depends on if you're running it within an EventMachine reactor
+or not.  If not, it returns an Array of responses as WSDiscovery::Responses.
+Take a look at the WSDiscovery#search docs for more on the options here.
+
+  require 'ws_discovery'
+
+  # Search for all devices (do a probe with Types left unspecified)
+  all_devices = WSDiscovery.search                         # this is default
+
+  # Search for devices of a specific Type
+  network_video_transmitters = WSDiscovery.search(
+    env_namespaces: { "xmlns:dn" => "http://www.onvif.org/ver10/network/wsdl" },
+    types: "dn:NetworkVideoTransmitter")
+
+  # These searches will return an Array of WSDiscovery::Responses.  See the
+  # WSDiscovery::Response documentation for more information.
+
+If you do the search inside of an EventMachine reactor, as the
+WSDiscovery::Searcher receives and parses responses, it adds them to the accessor
+#discovery_responses, which is an EventMachine::Channel.  This lets you subscribe
+to the responses and do what you want with them.
+
+== Requirements
+
+* Ruby
+  * 1.9.3
+* Gems
+  * builder
+  * eventmachine
+  * log_switch
+  * nokogiri
+  * nori
+  * uuid
+* Gems (development)
+  * bundler
+  * rake
+  * rspec
+  * simplecov
+  * simplecov-rcov
+  * yard
+
+== Install
+
+  $ gem install ws_discovery
+
+== THANKS
+
+The initial core of this gem came from https://github.com/turboladen/upnp due to
+the similarities in how SSDP and WS-Discovery searches are performed.
+
+The WSDiscovery::Response class reuses parts of https://github.com/savonrb/savon.
+It made sense to me that WSDiscovery::Responses would behave similarly to
+Savon::SOAP::Responses.
