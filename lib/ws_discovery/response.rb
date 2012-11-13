@@ -12,12 +12,12 @@ module WSDiscovery
   # Represents the probe response.
   class Response
 
+    attr_accessor :response
+
     # @param [String] response Text of the response to a WSDiscovery probe.
     def initialize(response)
-      self.response = response
+      @response = response
     end
-
-    attr_accessor :response
 
     # Shortcut accessor for the SOAP response body Hash.
     #
@@ -30,6 +30,7 @@ module WSDiscovery
     # Returns the SOAP response header as a Hash.
     #
     # @return [Hash] SOAP response header.
+    # @raise [WSDiscovery::Error] If unable to parse response.
     def header
       unless hash.has_key? :envelope
         raise WSDiscovery::Error, "Unable to parse response body '#{to_xml}'"
@@ -41,6 +42,7 @@ module WSDiscovery
     # Returns the SOAP response body as a Hash.
     #
     # @return [Hash] SOAP response body.
+    # @raise [WSDiscovery::Error] If unable to parse response.
     def body
       unless hash.has_key? :envelope
         raise WSDiscovery::Error, "Unable to parse response body '#{to_xml}'"

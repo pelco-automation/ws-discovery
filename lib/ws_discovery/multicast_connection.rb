@@ -18,6 +18,8 @@ module WSDiscovery
       setup_multicast_socket
     end
 
+    private
+
     # Gets the IP and port from the peer that just sent data.
     #
     # @return [Array<String,Fixnum>] The IP and port.
@@ -29,14 +31,14 @@ module WSDiscovery
       [ip, port]
     end
 
-    # Sets Socket options to allow for multicasting.  If ENV["RUBY_UPNP_ENV"] is
-    # equal to "testing", then it doesn't turn off multicast looping.
+    # Sets Socket options to allow for multicasting.  If ENV["RUBY_TESTING_ENV"]
+    # is equal to "testing", then it doesn't turn off multicast looping.
     def setup_multicast_socket
       set_membership(IPAddr.new(MULTICAST_IP).hton + IPAddr.new('0.0.0.0').hton)
       set_multicast_ttl(@ttl)
       set_ttl(@ttl)
 
-      unless ENV["RUBY_UPNP_ENV"] == "testing"
+      unless ENV["RUBY_TESTING_ENV"] == "testing"
         switch_multicast_loop :off
       end
     end
@@ -58,6 +60,7 @@ module WSDiscovery
     end
 
     # @param [Symbol] on_off Turn on/off multicast looping.  Supply :on or :off.
+    # @raise [WSDiscovery::Error] If invalid option is given.
     def switch_multicast_loop(on_off)
       hex_value = case on_off
       when :on, "\001"

@@ -18,7 +18,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   # @option options [String] :types Types.
   # @option options [Hash<String>] :scope_attributes Scope attributes.
   # @option options [String] :scopes Scopes.
-  # @option options [Fixnum] ttl TTL for the probe.
+  # @option options [Fixnum] :ttl TTL for the probe.
   def initialize(options={})
     options[:ttl] ||= TTL
 

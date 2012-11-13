@@ -8,6 +8,8 @@ require_relative 'ws_discovery/searcher'
 module WSDiscovery
   include NetworkConstants
 
+  DEFAULT_WAIT_TIME = 5
+
   # Opens a UDP socket on 0.0.0.0, on an ephemeral port, has WSDiscovery::Searcher
   # build and send the search request, then receives the responses.  The search
   # will stop after +response_wait_time+.
@@ -19,11 +21,11 @@ module WSDiscovery
   # @option options [Hash<String>] :scope_attributes Scope attributes.
   # @option options [String] :scopes Scopes.
   # @return [Array<WSDiscovery::Response>,WSDiscovery::Searcher] Returns an
-  # Array of probe responses. If the reactor is already running this will return
-  # a WSDiscovery::Searcher which will make its accessors available so you can
-  # get responses in real time.
+  #   Array of probe responses. If the reactor is already running this will return
+  #   a WSDiscovery::Searcher which will make its accessors available so you can
+  #   get responses in real time.
   def self.search(options={})
-    response_wait_time = options[:response_wait_time] || 5
+    response_wait_time = options[:response_wait_time] || DEFAULT_WAIT_TIME
     responses = []
 
     multicast_searcher = proc do

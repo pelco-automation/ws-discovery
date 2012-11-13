@@ -58,6 +58,7 @@ describe WSDiscovery::Response do
       :"@xmlns:a" => "http://schemas.xmlsoap.org/ws/2004/08/addressing",
       :"@xmlns:d" => "http://schemas.xmlsoap.org/ws/2005/04/discovery" } }
   end
+
   subject { WSDiscovery::Response.new(probe_response) }
 
   describe "#[]" do

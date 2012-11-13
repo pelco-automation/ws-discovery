@@ -18,12 +18,12 @@ you're not already, getting familiar with its concepts will be helpful here.
 
 == Examples
 
-=== SSDP Searches
+=== WS-Discovery Searches
 
 A WS-Discovery search simply sends the probe out to the multicast group and
 listens for responses for a given (or default of 5 seconds) amount of time.  The
 return from this depends on if you're running it within an EventMachine reactor
-or not.  If not, it returns is an Array of responses as WSDiscovery::Responses.
+or not.  If not, it returns an Array of responses as WSDiscovery::Responses.
 Take a look at the WSDiscovery#search docs for more on the options here.
 
   require 'ws_discovery'
@@ -32,7 +32,8 @@ Take a look at the WSDiscovery#search docs for more on the options here.
   all_devices = WSDiscovery.search                         # this is default
 
   # Search for devices of a specific Type
-  nvts = WSDiscovery.search(env_namespaces: { "xmlns:dn" => "http://www.onvif.org/ver10/network/wsdl" },
+  network_video_transmitters = WSDiscovery.search(
+    env_namespaces: { "xmlns:dn" => "http://www.onvif.org/ver10/network/wsdl" },
     types: "dn:NetworkVideoTransmitter")
 
   # These searches will return an Array of WSDiscovery::Responses.  See the
@@ -41,7 +42,7 @@ Take a look at the WSDiscovery#search docs for more on the options here.
 If you do the search inside of an EventMachine reactor, as the
 WSDiscovery::Searcher receives and parses responses, it adds them to the accessor
 #discovery_responses, which is an EventMachine::Channel.  This lets you subscribe
-to the resposnes and do what you want with them.
+to the responses and do what you want with them.
 
 == Requirements
 
@@ -65,3 +66,12 @@ to the resposnes and do what you want with them.
 == Install
 
   $ gem install ws_discovery
+
+== THANKS
+
+The initial core of this gem came from https://github.com/turboladen/upnp due to
+the similarities in how SSDP and WS-Discovery searches are performed.
+
+The WSDiscovery::Response class reuses parts of https://github.com/savonrb/savon.
+It made sense to me that WSDiscovery::Responses would behave similarly to
+Savon::SOAP::Responses.

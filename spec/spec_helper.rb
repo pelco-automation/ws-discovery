@@ -23,8 +23,4 @@ require 'rspec'
 # in ./support/ and its subdirectories.
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |file| require file }
 
-RSpec.configure do |config|
-
-end
-
-ENV["RUBY_UPNP_ENV"] = "testing"
+ENV["RUBY_TESTING_ENV"] = "testing"

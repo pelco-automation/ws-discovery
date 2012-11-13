@@ -18,15 +18,15 @@ describe WSDiscovery::MulticastConnection do
     end
 
     it "returns an Array with IP and port" do
-      subject.peer_info.should == ['1.2.3.4', 1234]
+      subject.send(:peer_info).should == ['1.2.3.4', 1234]
     end
 
     it "returns IP as a String" do
-      subject.peer_info.first.should be_a String
+      subject.send(:peer_info).first.should be_a String
     end
 
     it "returns port as a Fixnum" do
-      subject.peer_info.last.should be_a Fixnum
+      subject.send(:peer_info).last.should be_a Fixnum
     end
   end
 
@@ -42,26 +42,26 @@ describe WSDiscovery::MulticastConnection do
       subject.should_receive(:set_membership).with(
         IPAddr.new('239.255.255.250').hton + IPAddr.new('0.0.0.0').hton
       )
-      subject.setup_multicast_socket
+      subject.send(:setup_multicast_socket)
     end
 
     it "sets multicast TTL to 1" do
       subject.should_receive(:set_multicast_ttl).with(1)
-      subject.setup_multicast_socket
+      subject.send(:setup_multicast_socket)
     end
 
     it "sets TTL to 1" do
       subject.should_receive(:set_ttl).with(1)
-      subject.setup_multicast_socket
+      subject.send(:setup_multicast_socket)
     end
 
-    context "ENV['RUBY_UPNP_ENV'] != testing" do
-      after { ENV['RUBY_UPNP_ENV'] = "testing" }
+    context "ENV['RUBY_TESTING_ENV'] != testing" do
+      after { ENV['RUBY_TESTING_ENV'] = "testing" }
 
       it "turns multicast loop off" do
-        ENV['RUBY_UPNP_ENV'] = "development"
+        ENV['RUBY_TESTING_ENV'] = "development"
         subject.should_receive(:switch_multicast_loop).with(:off)
-        subject.setup_multicast_socket
+        subject.send(:setup_multicast_socket)
       end
     end
   end
@@ -75,32 +75,32 @@ describe WSDiscovery::MulticastConnection do
       subject.should_receive(:set_sock_opt).with(
         0, Socket::IP_MULTICAST_LOOP, "\001"
       )
-      subject.switch_multicast_loop :on
+      subject.send(:switch_multicast_loop, :on)
     end
 
     it "passes '\\001' to the socket option call when param == '\\001'" do
       subject.should_receive(:set_sock_opt).with(
         0, Socket::IP_MULTICAST_LOOP, "\001"
       )
-      subject.switch_multicast_loop "\001"
+      subject.send(:switch_multicast_loop,"\001")
     end
 
     it "passes '\\000' to the socket option call when param == :off" do
       subject.should_receive(:set_sock_opt).with(
         0, Socket::IP_MULTICAST_LOOP, "\000"
       )
-      subject.switch_multicast_loop :off
+      subject.send(:switch_multicast_loop,:off)
     end
 
     it "passes '\\000' to the socket option call when param == '\\000'" do
       subject.should_receive(:set_sock_opt).with(
         0, Socket::IP_MULTICAST_LOOP, "\000"
       )
-      subject.switch_multicast_loop "\000"
+      subject.send(:switch_multicast_loop,"\000")
     end
 
     it "raises when not :on, :off, '\\000', or '\\001'" do
-      expect { subject.switch_multicast_loop 12312312 }.
+      expect { subject.send(:switch_multicast_loop, 12312312) }.
         to raise_error(WSDiscovery::Error)
     end
   end
