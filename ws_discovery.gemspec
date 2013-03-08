@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency("eventmachine")
   s.add_dependency("log_switch", ">=0.1.4")
   s.add_dependency("nokogiri")
-  s.add_dependency("nori")
+  s.add_dependency("nori", '>=2.0.0')
   s.add_dependency("uuid")
 
   s.add_development_dependency("bundler", ">= 1.0.21")

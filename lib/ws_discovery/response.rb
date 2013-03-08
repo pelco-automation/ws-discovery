@@ -2,11 +2,6 @@ require 'nokogiri'
 require 'nori'
 require_relative 'error'
 
-Nori.configure do |config|
-  config.strip_namespaces = true
-  config.convert_tags_to { |tag| tag.snakecase.to_sym }
-end
-
 module WSDiscovery
 
   # Represents the probe response.
@@ -57,7 +52,7 @@ module WSDiscovery
     #
     # @return [Hash] Complete SOAP response Hash.
     def hash
-      @hash ||= Nori.parse(to_xml)
+      @hash ||= nori.parse(to_xml)
     end
 
     # Returns the SOAP response XML.
@@ -90,6 +85,20 @@ module WSDiscovery
     # @return [Hash] Namespaces from the Document.
     def xml_namespaces
       @xml_namespaces ||= doc.collect_namespaces
+    end
+
+    # Returns a Nori parser.
+    #
+    # @return [Nori] Nori parser.
+    def nori
+      return @nori if @nori
+
+      nori_options = {
+        strip_namespaces: true,
+        convert_tags_to: lambda { |tag| tag.snake_case.to_sym }
+      }
+
+      @nori = Nori.new(nori_options)
     end
   end
 end
