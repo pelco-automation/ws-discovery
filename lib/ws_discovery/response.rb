@@ -95,7 +95,7 @@ module WSDiscovery
 
       nori_options = {
         strip_namespaces: true,
-        convert_tags_to: lambda { |tag| tag.snake_case.to_sym }
+        convert_tags_to: lambda { |tag| tag.snakecase.to_sym }
       }
 
       @nori = Nori.new(nori_options)
