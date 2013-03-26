@@ -1,3 +1,7 @@
+=== 0.0.2 / 2013-03-25
+
+* Updated to be compatible with Nori 2.0.0.
+
 === 0.0.1 / 2012-11-12
 
 * Initial release.
