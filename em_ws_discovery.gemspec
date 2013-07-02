@@ -2,18 +2,18 @@ $:.push File.expand_path("../lib", __FILE__)
 require 'ws_discovery/version'
 
 Gem::Specification.new do |s|
-  s.name = "ws_discovery"
+  s.name = "em_ws_discovery"
   s.version = WSDiscovery::VERSION
-  s.homepage = "https://github.com/pelco-automation/ws-discovery"
-  s.author = "tindron"
-  s.email = "rstoller@gmail.com"
-  s.description = "Perform a multicast search for devices using WS-Discovery"
-  s.summary = "Search for devices using WS-Discovery"
+  s.homepage = "https://github.com/jimxl/em-ws-discovery"
+  s.author = "jimxl"
+  s.email = "tianxiaxl@gmail.com"
+  s.description = "ruby实现的ws_discovery, 基于ws-discovery项目"
+  s.summary = "ruby实现的ws_discovery, 基于ws-discovery项目"
 
   s.required_rubygems_version = ">=1.8.0"
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.3")
   s.files = Dir.glob("{lib,spec}/**/*") + Dir.glob("*.rdoc") +
-    %w(Gemfile ws_discovery.gemspec Rakefile)
+    %w(Gemfile em_ws_discovery.gemspec Rakefile)
   s.require_paths = ["lib"]
 
   s.add_dependency("builder")
