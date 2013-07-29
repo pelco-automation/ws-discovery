@@ -73,7 +73,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
       'xmlns:d' => 'http://schemas.xmlsoap.org/ws/2005/04/discovery',
       'xmlns:s' => 'http://www.w3.org/2003/05/soap-envelope'
     }
-    namespaces.merge options[:env_namespaces] if options[:env_namespaces]
+    namespaces.merge! options[:env_namespaces] if options[:env_namespaces]
 
     Builder::XmlMarkup.new.s(:Envelope, namespaces) do |xml|
       xml.s(:Header) do |xml|
@@ -83,8 +83,10 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
       end
 
       xml.s(:Body) do |xml|
-        xml.d(:Types, options[:type_attributes], options[:types])
-        xml.d(:Scopes, options[:scope_attributes], options[:scopes])
+        xml.d(:Probe) do
+          xml.d(:Types, options[:type_attributes], options[:types])
+          xml.d(:Scopes, options[:scope_attributes], options[:scopes])
+        end
       end
     end
   end

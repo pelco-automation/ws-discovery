@@ -8,7 +8,8 @@ describe WSDiscovery::Searcher do
       "ttp://www.w3.org/2003/05/soap-envelope\"><s:Header><a:Action>http://sch" +
       "emas.xmlsoap.org/ws/2005/04/discovery/Probe</a:Action><a:MessageID>uuid" +
       ":a-uuid</a:MessageID><a:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery" +
-      "</a:To></s:Header><s:Body><d:Types/><d:Scopes/></s:Body></s:Envelope>"
+      "</a:To></s:Header><s:Body><d:Probe><d:Types/><d:Scopes/></d:Probe></s:B" +
+      "ody></s:Envelope>"
   end
 
   around(:each) do |example|
@@ -77,8 +78,18 @@ describe WSDiscovery::Searcher do
   end
 
   describe "#probe" do
-    it "builds the MSEARCH string using the given parameters" do
-      subject.probe.should == default_probe
+    it "builds the probe string using the given parameters" do
+      subject.probe(
+        env_namespaces: { "xmlns:dn" => "http://www.onvif.org/ver10/network/wsdl" },
+        types: "dn:NetworkVideoTransmitter").should == <<-PROBE.strip
+<s:Envelope xmlns:a=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\" xmlns:\
+d=\"http://schemas.xmlsoap.org/ws/2005/04/discovery\" xmlns:s=\"http://www.w3.o\
+rg/2003/05/soap-envelope\" xmlns:dn=\"http://www.onvif.org/ver10/network/wsdl\"\
+><s:Header><a:Action>http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</a:A\
+ction><a:MessageID>uuid:a-uuid</a:MessageID><a:To>urn:schemas-xmlsoap-org:ws:20\
+05:04:discovery</a:To></s:Header><s:Body><d:Probe><d:Types>dn:NetworkVideoTrans\
+mitter</d:Types><d:Scopes/></d:Probe></s:Body></s:Envelope>
+      PROBE
     end
   end
 end
