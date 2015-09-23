@@ -52,7 +52,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   # send was successful.
   def post_init
     if send_datagram(@search, MULTICAST_IP, MULTICAST_PORT) > 0
-      WSDiscovery::Searcher.log("Sent datagram search:\n#{@search}")
+      logger.info("Sent datagram search:\n#{@search}")
     end
   end
 
