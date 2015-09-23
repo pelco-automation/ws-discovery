@@ -20,9 +20,8 @@ describe WSDiscovery::Searcher do
   end
 
   before do
-    WSDiscovery::Searcher.log = false
-    WSDiscovery::MulticastConnection.any_instance.stub(:setup_multicast_socket)
-    UUID.stub(:generate).and_return('a-uuid')
+    allow_any_instance_of(WSDiscovery::MulticastConnection).to receive(:setup_multicast_socket)
+    allow(UUID).to receive(:generate).and_return('a-uuid')
   end
 
   subject do
@@ -31,8 +30,7 @@ describe WSDiscovery::Searcher do
 
   describe "#initialize" do
     it "does a #probe" do
-      WSDiscovery::Searcher.any_instance.should_receive(:probe)
-
+      expect_any_instance_of(WSDiscovery::Searcher).to receive(:probe)
       subject
     end
   end
@@ -44,11 +42,11 @@ describe WSDiscovery::Searcher do
 
     it "takes a response and adds it to the list of responses" do
       response = double 'response'
-      subject.stub(:peer_info).and_return(['0.0.0.0', 4567])
+      allow(subject).to receive(:peer_info).and_return(['0.0.0.0', 4567])
 
-      subject.should_receive(:parse).with(response).exactly(1).times.
+      expect(subject).to receive(:parse).with(response).exactly(1).times.
         and_return(parsed_response)
-      subject.instance_variable_get(:@discovery_responses).should_receive(:<<).
+      expect(subject.instance_variable_get(:@discovery_responses)).to receive(:<<).
         with(parsed_response)
 
       subject.receive_data(response)
@@ -57,20 +55,20 @@ describe WSDiscovery::Searcher do
 
   describe "#parse" do
     before do
-      WSDiscovery::MulticastConnection.any_instance.stub(:setup_multicast_socket)
+      allow_any_instance_of(WSDiscovery::MulticastConnection).to receive(:setup_multicast_socket)
     end
 
     it "turns probe matches into WSDiscovery::Responses" do
       result = subject.parse "<Envelope />"
-      result.should be_a WSDiscovery::Response
+      expect(result).to be_a WSDiscovery::Response
     end
   end
 
   describe "#post_init" do
-    before { WSDiscovery::Searcher.any_instance.stub(:m_search).and_return("hi") }
+    before { allow_any_instance_of(WSDiscovery::Searcher).to receive(:m_search).and_return("hi") }
 
     it "sends a probe as a datagram over 239.255.255.250:3702" do
-      subject.should_receive(:send_datagram).
+      expect(subject).to receive(:send_datagram).
         with(default_probe, '239.255.255.250', 3702).
         and_return 0
       subject.post_init
@@ -79,9 +77,9 @@ describe WSDiscovery::Searcher do
 
   describe "#probe" do
     it "builds the probe string using the given parameters" do
-      subject.probe(
+      expect(subject.probe(
         env_namespaces: { "xmlns:dn" => "http://www.onvif.org/ver10/network/wsdl" },
-        types: "dn:NetworkVideoTransmitter").should == <<-PROBE.strip
+        types: "dn:NetworkVideoTransmitter")).to eql <<-PROBE.strip
 <s:Envelope xmlns:a=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\" xmlns:\
 d=\"http://schemas.xmlsoap.org/ws/2005/04/discovery\" xmlns:s=\"http://www.w3.o\
 rg/2003/05/soap-envelope\" xmlns:dn=\"http://www.onvif.org/ver10/network/wsdl\"\

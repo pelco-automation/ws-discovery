@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency("builder")
   s.add_dependency("eventmachine")
-  s.add_dependency("log_switch", ">=0.1.4")
+  s.add_dependency("semantic_logger")
   s.add_dependency("nokogiri")
   s.add_dependency("nori", '>=2.0.0')
   s.add_dependency("uuid")
