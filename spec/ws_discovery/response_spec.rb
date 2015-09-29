@@ -63,7 +63,7 @@ describe WSDiscovery::Response do
 
   describe "#[]" do
     it "should return the SOAP response body as a Hash" do
-      subject[:probe_matches].should == probe_body_hash[:probe_matches]
+      expect(subject[:probe_matches]).to eql probe_body_hash[:probe_matches]
     end
 
     it "should throw an exception when the response body isn't parsable" do
@@ -73,7 +73,7 @@ describe WSDiscovery::Response do
 
   describe "#header" do
     it "should return the SOAP response header as a Hash" do
-      subject.header[:app_sequence].should == probe_header_hash[:app_sequence]
+      expect(subject.header[:app_sequence]).to eql probe_header_hash[:app_sequence]
     end
 
     it "should throw an exception when the response header isn't parsable" do
@@ -84,35 +84,35 @@ describe WSDiscovery::Response do
   %w(body to_hash).each do |method|
     describe "##{method}" do
       it "should return the SOAP response body as a Hash" do
-        subject.send(method)[:probe_matches].should == probe_body_hash[:probe_matches]
+        expect(subject.send(method)[:probe_matches]).to eql probe_body_hash[:probe_matches]
       end
     end
   end
 
   describe "#hash" do
     it "should return the complete SOAP response XML as a Hash" do
-      subject.hash.should == probe_full_hash
+      expect(subject.hash).to eql probe_full_hash
     end
   end
 
   describe "#to_xml" do
     it "should return the raw SOAP response body" do
-      subject.to_xml.should == probe_response
+      expect(subject.to_xml).to eql probe_response
     end
   end
 
   describe "#doc" do
     it "returns a Nokogiri::XML::Document for the SOAP response XML" do
-      subject.doc.should be_a(Nokogiri::XML::Document)
+      expect(subject.doc).to be_a(Nokogiri::XML::Document)
     end
   end
 
   describe "#xpath" do
     it "permits XPath access to elements in the request" do
-      subject.xpath("//a:Address").first.inner_text.
-        should == "urn:uuid:0b679890-fc54-14ba-d428-f73b3e7c2400"
-      subject.xpath("//d:ProbeMatch/d:XAddrs").first.inner_text.
-        should == "http://10.221.222.74/onvif/device_service"
+      expect(subject.xpath("//a:Address").first.inner_text).to \
+        eql "urn:uuid:0b679890-fc54-14ba-d428-f73b3e7c2400"
+      expect(subject.xpath("//d:ProbeMatch/d:XAddrs").first.inner_text).to \
+        eql "http://10.221.222.74/onvif/device_service"
     end
   end
 end

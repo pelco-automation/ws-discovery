@@ -1,13 +1,11 @@
 require_relative 'multicast_connection'
 require_relative 'response'
+require 'semantic_logger'
 require 'builder'
-require 'log_switch'
 require 'uuid'
 
 class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
-  extend LogSwitch
-  self.logger.datetime_format = "%Y-%m-%d %H:%M:%S "
-
+  include SemanticLogger::Loggable
   # @return [EventMachine::Channel] Provides subscribers with responses from
   #   their search request.
   attr_reader :discovery_responses
@@ -37,7 +35,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   # @param [String] response The data received on this connection's socket.
   def receive_data(response)
     ip, port = peer_info
-    WSDiscovery::Searcher.log "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
+    logger.info "<#{self.class}> Response from #{ip}:#{port}:\n#{response}\n"
     parsed_response = parse(response)
     @discovery_responses << parsed_response
   end
@@ -54,7 +52,7 @@ class WSDiscovery::Searcher < WSDiscovery::MulticastConnection
   # send was successful.
   def post_init
     if send_datagram(@search, MULTICAST_IP, MULTICAST_PORT) > 0
-      WSDiscovery::Searcher.log("Sent datagram search:\n#{@search}")
+      logger.info("Sent datagram search:\n#{@search}")
     end
   end
 
