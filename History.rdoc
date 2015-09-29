@@ -1,3 +1,8 @@
+=== 0.0.4 / 2015-09-28
+
+* Switched to semantic_logger for logging.
+* Updated to latest rspec syntax.
+
 === 0.0.3 / 2013-07-29
 
 * Corrected errors with searching for devices of a specific type.

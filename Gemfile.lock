@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ws_discovery (0.0.3)
+    ws_discovery (0.0.4)
       builder
       eventmachine
       nokogiri
